@@ -1,0 +1,67 @@
+.settings-dialog .MuiDialog-paper {
+  background-color: rgba(26, 26, 26, 0.2);
+  backdrop-filter: blur(8px);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 400px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.settings-slider {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.settings-slider .MuiSlider-thumb {
+  background-color: white;
+}
+
+.settings-slider .MuiSlider-track {
+  background-color: white;
+}
+
+.settings-slider .MuiSlider-rail {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.font-size-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+.font-size-display .size-number {
+  font-weight: bold;
+  color: white;
+  margin-right: 8px;
+}
+
+.font-size-display .size-unit {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.font-size-display .font-size-text {
+  font-weight: bold;
+  color: white;
+}
+
+.settings-button {
+  background-color: rgba(40, 40, 40, 0.2);
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  min-width: 32px;
+}
+
+.settings-button:hover {
+  background-color: rgba(60, 60, 60, 0.3);
+} 
