@@ -1,0 +1,65 @@
+.save-note-dialog .MuiDialog-paper {
+  background-color: rgba(26, 26, 26, 0.2);
+  backdrop-filter: blur(8px);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 400px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.save-note-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.save-note-field {
+  color: #ffffff;
+}
+
+.save-note-field .MuiInputBase-root {
+  color: white;
+}
+
+.save-note-field .MuiInputLabel-root {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.save-note-field .MuiOutlinedInput-root {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.save-note-field .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.save-note-field .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.save-note-button {
+  background-color: rgba(40, 40, 40, 0.2);
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  min-width: 32px;
+}
+
+.save-note-button:hover {
+  background-color: rgba(60, 60, 60, 0.3);
+}
+
+.save-note-button:disabled {
+  color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(40, 40, 40, 0.1);
+} 

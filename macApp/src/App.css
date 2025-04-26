@@ -126,10 +126,6 @@ button {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
-  background-color: #1a1a1a;
-  color: #ffffff;
-  background-image: url('./assets/wave.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -139,6 +135,7 @@ button {
   left: 0;
   right: 0;
   bottom: 0;
+  transition: background-image 0.3s ease;
 }
 
 .main-content {
@@ -239,4 +236,45 @@ button {
 
 .chatbot.open {
   transform: translateX(0);
+}
+
+.tags-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.tags-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tag-item {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  font-weight: normal;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.tag-item:hover {
+  color: rgba(255, 255, 255, 1);
+  transform: scale(1.05);
+}
+
+.no-tags-message {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.2rem;
+  text-align: center;
 }
