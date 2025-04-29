@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogActions, Button, TextField, Box } from '@mui/material';
 import { IoClose, IoCheckmark } from 'react-icons/io5';
 import './SaveNoteModal.css';
@@ -7,11 +7,20 @@ interface SaveNoteModalProps {
   open: boolean;
   onClose: () => void;
   onSave: (title: string, tags: string) => void;
+  initialTitle?: string;
+  initialTags?: string;
 }
 
-const SaveNoteModal = ({ open, onClose, onSave }: SaveNoteModalProps) => {
-  const [title, setTitle] = useState('');
-  const [tags, setTags] = useState('');
+const SaveNoteModal = ({ open, onClose, onSave, initialTitle = '', initialTags = '' }: SaveNoteModalProps) => {
+  const [title, setTitle] = useState(initialTitle);
+  const [tags, setTags] = useState(initialTags);
+
+  useEffect(() => {
+    if (open) {
+      setTitle(initialTitle);
+      setTags(initialTags);
+    }
+  }, [open, initialTitle, initialTags]);
 
   const handleSave = () => {
     onSave(title, tags);

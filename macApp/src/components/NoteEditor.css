@@ -12,8 +12,6 @@
   max-width: 800px;
   height: calc(100vh - 400px);
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
   resize: none;
   color: #ffffff;
   font-size: inherit;
@@ -21,13 +19,61 @@
   padding: 1rem;
   outline: none;
   font-family: inherit;
-  transition: border-color 0.2s ease;
-}
-
-.note-content:focus {
-  border-color: rgba(255, 255, 255, 0.3);
+  border: none;
 }
 
 .note-content::placeholder {
   color: rgba(255, 255, 255, 0.5);
+}
+
+.title-container {
+  position: fixed;
+  top: 2rem;
+  left: 0;
+  right: 0;
+  padding: 0 2rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.back-button {
+  background: rgba(40, 40, 40, 0.2);
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.back-button:hover {
+  background-color: rgba(60, 60, 60, 0.3);
+}
+
+.note-title {
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+  font-size: 1rem;
+  font-weight: normal;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.note-tag {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.title-separator {
+  color: rgba(255, 255, 255, 0.3);
 } 

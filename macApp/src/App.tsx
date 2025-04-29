@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { HiMenu, HiChat, HiPlus, HiCog } from "react-icons/hi";
+import { HiMenu, HiChat, HiPlus, HiCog, HiTrash } from "react-icons/hi";
 import { MdOutlineSaveAs } from "react-icons/md";
 import "./App.css";
 import Chatbot from "./components/Chatbot";
@@ -50,17 +50,34 @@ function App() {
 
   const handleSaveNote = (title: string, tagString: string) => {
     const newTags = tagString.split(',').map(tag => tag.trim()).filter(tag => tag);
-    const newNote: Note = {
-      title,
-      content: noteContent,
-      tags: newTags
-    };
     
-    setNotes(prevNotes => [...prevNotes, newNote]);
+    if (selectedNote) {
+      // Update existing note
+      const updatedNote = {
+        ...selectedNote,
+        title,
+        tags: newTags
+      };
+      setNotes(prevNotes => 
+        prevNotes.map(note => 
+          note === selectedNote ? updatedNote : note
+        )
+      );
+    } else {
+      // Create new note
+      const newNote: Note = {
+        title,
+        content: noteContent,
+        tags: newTags
+      };
+      setNotes(prevNotes => [...prevNotes, newNote]);
+    }
+    
     setTags(prevTags => [...new Set([...prevTags, ...newTags])]);
-    
     setIsNoteEditorOpen(false);
     setNoteContent('');
+    setSelectedNote(null);
+    setIsMenuOpen(false);
   };
 
   const handleNoteContentChange = (content: string) => {
@@ -69,10 +86,12 @@ function App() {
 
   const handleTagClick = (tag: string) => {
     setSelectedTag(tag);
+    setIsMenuOpen(false);
   };
 
   const handleBackFromNotes = () => {
     setSelectedTag(null);
+    setIsMenuOpen(false);
   };
 
   const getNotesForTag = (tag: string) => {
@@ -83,6 +102,17 @@ function App() {
     setSelectedNote(note);
     setNoteContent(note.content);
     setIsNoteEditorOpen(true);
+    setIsMenuOpen(false);
+  };
+
+  const handleDeleteNote = () => {
+    if (selectedNote) {
+      setNotes(prevNotes => prevNotes.filter(note => note !== selectedNote));
+      setSelectedNote(null);
+      setNoteContent('');
+      setIsNoteEditorOpen(false);
+      setIsMenuOpen(false);
+    }
   };
 
   return (
@@ -102,31 +132,56 @@ function App() {
           <HiMenu size={20} />
         </button>
         {isMenuOpen && (
-          <div className="dropdown-menu">
-            <button 
-              className="dropdown-item"
-              onClick={handleNewNote}
-            >
-              <HiPlus size={20} />
-            </button>
-            <button 
-              className="dropdown-item"
-              onClick={() => {
-                setIsSaveModalOpen(true);
-                setIsMenuOpen(false);
-              }}
-            >
-              <MdOutlineSaveAs size={20} />
-            </button>
-            <button 
-              className="dropdown-item"
-              onClick={() => {
-                setIsSettingsOpen(true);
-                setIsMenuOpen(false);
-              }}
-            >
-              <HiCog size={20} />
-            </button>
+          <div 
+            className="dropdown-menu"
+            onMouseLeave={() => setIsMenuOpen(false)}
+          >
+            {isNoteEditorOpen ? (
+              <>
+                <button 
+                  className="dropdown-item"
+                  onClick={() => {
+                    setIsSaveModalOpen(true);
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  <MdOutlineSaveAs size={20} />
+                </button>
+                <button 
+                  className="dropdown-item"
+                  onClick={handleDeleteNote}
+                >
+                  <HiTrash size={20} />
+                </button>
+                <button 
+                  className="dropdown-item"
+                  onClick={() => {
+                    setIsSettingsOpen(true);
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  <HiCog size={20} />
+                </button>
+              </>
+            ) : (
+              <>
+                <button 
+                  className="dropdown-item"
+                  onClick={handleNewNote}
+                >
+                  <HiPlus size={20} />
+                </button>
+                <button 
+                  className="dropdown-item"
+                  onClick={() => {
+                    setIsSettingsOpen(true);
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  <HiCog size={20} />
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>
@@ -141,6 +196,7 @@ function App() {
             onContentChange={handleNoteContentChange}
             initialContent={selectedNote?.content || ''}
             title={selectedNote?.title || ''}
+            tag={selectedTag || ''}
           />
         ) : selectedTag ? (
           <NotesList 
@@ -166,7 +222,7 @@ function App() {
             ) : (
               <p className="no-tags-message">No tags yet. Create a note to get started.</p>
             )}
-          </div>
+        </div>
         )}
       </main>
       {!isChatbotOpen && (
@@ -195,6 +251,8 @@ function App() {
         open={isSaveModalOpen}
         onClose={() => setIsSaveModalOpen(false)}
         onSave={handleSaveNote}
+        initialTitle={selectedNote?.title || ''}
+        initialTags={selectedTag || ''}
       />
     </div>
   );

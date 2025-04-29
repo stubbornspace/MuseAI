@@ -7,9 +7,10 @@ interface NoteEditorProps {
   onContentChange: (content: string) => void;
   initialContent?: string;
   title?: string;
+  tag?: string;
 }
 
-const NoteEditor = ({ onClose, onContentChange, initialContent = '', title = '' }: NoteEditorProps) => {
+const NoteEditor = ({ onClose, onContentChange, initialContent = '', title = '', tag = '' }: NoteEditorProps) => {
   const [content, setContent] = useState(initialContent);
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -20,46 +21,17 @@ const NoteEditor = ({ onClose, onContentChange, initialContent = '', title = '' 
 
   return (
     <div className="note-editor">
-      {title && (
-        <div style={{ 
-          position: 'fixed', 
-          top: '2rem', 
-          left: '0', 
-          right: '0', 
-          padding: '0 2rem',
-          textAlign: 'center',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem'
-        }}>
+      {(title || tag) && (
+        <div className="title-container">
           <button 
-            style={{ 
-              background: 'rgba(40, 40, 40, 0.2)',
-              border: 'none',
-              color: 'rgba(255, 255, 255, 0.7)',
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              cursor: 'pointer',
-              padding: '0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'background-color 0.2s'
-            }}
+            className="back-button"
             onClick={onClose}
           >
             <IoArrowBack size={20} />
           </button>
-          <h3 style={{ 
-            color: 'rgba(255, 255, 255, 0.5)',
-            margin: '0',
-            fontSize: '1rem',
-            fontWeight: 'normal',
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)'
-          }}>
+          <h3 className="note-title">
+            {tag && <span className="note-tag">{tag}</span>}
+            {tag && title && <span className="title-separator"> / </span>}
             {title}
           </h3>
         </div>

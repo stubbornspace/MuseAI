@@ -48,7 +48,7 @@ const SettingsModal = ({
     <Dialog open={open} onClose={onClose} className="settings-dialog">
       <DialogContent>
         <Box className="settings-section">
-          <Typography variant="h6" className="settings-title">Font Size</Typography>
+
           <Box className="font-size-display">
             <Typography 
               className="font-size-text" 
@@ -78,7 +78,12 @@ const SettingsModal = ({
         </Box>
 
         <Box className="settings-section">
-          <Typography variant="h6" className="settings-title">Background Image</Typography>
+        <Typography 
+              className="font-size-text" 
+              sx={{ fontSize: `${fontSize}px` }}
+            >
+              Background
+            </Typography>
           <Box className="background-thumbnails">
             {backgroundOptions.map((option) => (
               <button
