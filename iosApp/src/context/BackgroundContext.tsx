@@ -3,11 +3,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BACKGROUND_IMAGES = {
   space: require('../../assets/bgs/space.jpg'),
-  space1: require('../../assets/bgs/space1.jpg'),
-  space2: require('../../assets/bgs/space2.jpg'),
-  space3: require('../../assets/bgs/space3.jpg'),
-  blue: require('../../assets/bgs/blue.png'),
-  gray: require('../../assets/bgs/gray.png'),
+  wave: require('../../assets/bgs/wave.png'),
+  ocean: require('../../assets/bgs/ocean.png'),
+  galaxy: require('../../assets/bgs/galaxy.png'),
+  nyc: require('../../assets/bgs/nyc.png')
 };
 
 type BackgroundContextType = {

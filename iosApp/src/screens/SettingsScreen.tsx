@@ -20,11 +20,10 @@ import { Alert } from 'react-native';
 
 const BACKGROUND_IMAGES = [
   { id: 'space', name: 'Space', source: require('../../assets/bgs/space.jpg') },
-  { id: 'space1', name: 'Space 1', source: require('../../assets/bgs/space1.jpg') },
-  { id: 'space2', name: 'Space 2', source: require('../../assets/bgs/space2.jpg') },
-  { id: 'space3', name: 'Space 3', source: require('../../assets/bgs/space3.jpg') },
-  { id: 'blue', name: 'Blue', source: require('../../assets/bgs/blue.png') },
-  { id: 'gray', name: 'Gray', source: require('../../assets/bgs/gray.png') },
+  { id: 'wave', name: 'Wave', source: require('../../assets/bgs/wave.png') },
+  { id: 'ocean', name: 'Ocean', source: require('../../assets/bgs/ocean.png') },
+  { id: 'galaxy', name: 'Galaxy', source: require('../../assets/bgs/galaxy.png') },
+  { id: 'nyc', name: 'NYC', source: require('../../assets/bgs/nyc.png') }
 ];
 
 export const SettingsScreen = () => {
