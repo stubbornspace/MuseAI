@@ -3,7 +3,7 @@
   top: 0;
   left: 0;
   width: 40%;
-  max-width: 480px;
+  max-width: 1080px;
   height: 100vh;
   background-color: rgba(26, 26, 26, 0.4);
   border-right: 1px solid rgba(255, 255, 255, 0.1);
@@ -25,6 +25,7 @@
   align-items: center;
   padding: 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
 }
 
 .chatbot-header h2 {
@@ -56,6 +57,8 @@
   display: flex;
   flex-direction: column;
   padding: 1rem;
+  overflow: hidden;
+  min-height: 0;
 }
 
 .chat-messages {
@@ -63,11 +66,109 @@
   overflow-y: auto;
   margin-bottom: 1rem;
   color: #ffffff;
+  padding-right: 0.5rem;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.message-container {
+  margin-bottom: 10px;
+  padding:1px 10px 1px 10px;
+  border-radius: 10px;
+  max-width: 80%;
+}
+
+.user-message {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  margin-left: auto;
+}
+
+.bot-message {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  margin-right: auto;
+}
+
+/* Markdown Styles */
+.bot-message pre {
+  background: rgba(0, 0, 0, 0.2);
+  color: #ffffff;
+  padding: 10px;
+  border-radius: 5px;
+  overflow-x: auto;
+  margin: 10px 0;
+}
+
+.bot-message code {
+  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+.bot-message p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.bot-message ul, .bot-message ol {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.bot-message li {
+  margin: 5px 0;
+}
+
+.bot-message h1, .bot-message h2, .bot-message h3, 
+.bot-message h4, .bot-message h5, .bot-message h6 {
+  margin: 15px 0 10px 0;
+  color: #ffffff;
+}
+
+.bot-message blockquote {
+  border-left: 4px solid rgba(255, 255, 255, 0.2);
+  margin: 10px 0;
+  padding-left: 10px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.bot-message a {
+  color: #007AFF;
+  text-decoration: none;
+}
+
+.bot-message a:hover {
+  text-decoration: underline;
 }
 
 .chat-input {
   display: flex;
   gap: 0.5rem;
+  flex-shrink: 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.input-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .chat-input input {
@@ -77,6 +178,25 @@
   border-radius: 4px;
   background-color: #2a2a2a;
   color: #ffffff;
+}
+
+.clear-button {
+  background-color: rgba(40, 40, 40, 0.2);
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.clear-button:hover {
+  background-color: rgba(60, 60, 60, 0.3);
 }
 
 .send-button {
@@ -96,4 +216,62 @@
 
 .send-button:hover {
   background-color: rgba(60, 60, 60, 0.3);
+}
+
+.send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bot-message-content {
+  position: relative;
+  width: 100%;
+}
+
+.copy-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 1;
+}
+
+.copy-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.copy-tooltip {
+  position: absolute;
+  top: -24px;
+  right: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  animation: fadeInOut 2s ease;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.header-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 } 
