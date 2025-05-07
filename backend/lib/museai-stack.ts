@@ -42,14 +42,47 @@ export class MuseaiStack extends cdk.Stack {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
         allowMethods: apigateway.Cors.ALL_METHODS,
       },
+      // Enable API key requirement
+      apiKeySourceType: apigateway.ApiKeySourceType.HEADER,
     });
+
+    // Create usage plan
+    const usagePlan = new apigateway.UsagePlan(this, 'ChatbotUsagePlan', {
+      name: 'Chatbot Usage Plan',
+      description: 'Usage plan for the Chatbot API',
+      apiStages: [
+        {
+          api,
+          stage: api.deploymentStage,
+        },
+      ],
+      // Set rate limits and quotas
+      throttle: {
+        rateLimit: 10, // requests per second
+        burstLimit: 20, // maximum requests in a burst
+      },
+      quota: {
+        limit: 1000, // requests per day
+        period: apigateway.Period.DAY,
+      },
+    });
+
+    // Create API key
+    const apiKey = new apigateway.ApiKey(this, 'ChatbotApiKey', {
+      apiKeyName: 'Chatbot API Key',
+      description: 'API Key for Chatbot API',
+      enabled: true,
+    });
+
+    // Associate API key with usage plan
+    usagePlan.addApiKey(apiKey);
 
     // Create API Gateway integration
     const integration = new apigateway.LambdaIntegration(chatbotLambda, {
       requestTemplates: { 'application/json': '{ "statusCode": "200" }' },
     });
 
-    // Add POST method to API Gateway
+    // Add POST method to API Gateway with API key requirement
     api.root.addResource('chat')
       .addMethod('POST', integration, {
         methodResponses: [
@@ -60,12 +93,19 @@ export class MuseaiStack extends cdk.Stack {
             },
           },
         ],
+        // Require API key for this method
+        apiKeyRequired: true,
       });
 
-    // Output the API endpoint
+    // Output the API endpoint and API key
     new cdk.CfnOutput(this, 'ApiEndpoint', {
       value: api.url,
       description: 'API Gateway endpoint URL',
+    });
+
+    new cdk.CfnOutput(this, 'ApiKey', {
+      value: apiKey.keyId,
+      description: 'API Key ID',
     });
 
     // The code that defines your stack goes here

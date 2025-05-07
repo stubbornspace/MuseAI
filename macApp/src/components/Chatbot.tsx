@@ -6,6 +6,10 @@ import { useState } from 'react';
 import { Window } from '@tauri-apps/api/window';
 import ReactMarkdown from 'react-markdown';
 
+// API configuration
+const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT 
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 interface ChatbotProps {
   isOpen: boolean;
   onClose: () => void;
@@ -56,10 +60,15 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://2v1eiggc31.execute-api.us-east-1.amazonaws.com/prod/chat', {
+      if (!API_KEY) {
+        throw new Error('API key is not configured');
+      }
+
+      const response = await fetch(API_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-api-key': API_KEY,
         },
         body: JSON.stringify({ message: userMessage }),
       });

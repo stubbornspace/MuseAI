@@ -15,4 +15,7 @@ npm install
 npm run tauri dev
 ```
 
+.env
 
+VITE_API_ENDPOINT=''
+VITE_API_KEY=pT3c1HP''
