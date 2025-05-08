@@ -5,6 +5,7 @@ import { VscClearAll } from 'react-icons/vsc';
 import { useState } from 'react';
 import { Window } from '@tauri-apps/api/window';
 import ReactMarkdown from 'react-markdown';
+import { Components } from 'react-markdown';
 
 // API configuration
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT 
@@ -122,8 +123,8 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
                   <ReactMarkdown
                     components={{
                       p: ({ node, ...props }) => <p {...props} />,
-                      code: ({ node, inline, ...props }) => 
-                        inline ? <code {...props} /> : <pre><code {...props} /></pre>,
+                      code: ({ children, ...props }: any) => 
+                        props.inline ? <code {...props}>{children}</code> : <pre><code {...props}>{children}</code></pre>,
                       pre: ({ node, ...props }) => <pre {...props} />,
                     }}
                   >
