@@ -20,8 +20,8 @@ function MusicPlayer() {
   };
 
   return (
-    <button className="music-player" onClick={togglePlayback}>
-      {isPlaying ? <IoPauseCircleOutline size={24} /> : <IoPlayCircleOutline size={24} />}
+    <button className="menu-item" onClick={togglePlayback}>
+      {isPlaying ? <IoPauseCircleOutline size={20} /> : <IoPlayCircleOutline size={20} />}
     </button>
   );
 }

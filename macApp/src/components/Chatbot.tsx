@@ -5,7 +5,6 @@ import { VscClearAll } from 'react-icons/vsc';
 import { useState } from 'react';
 import { Window } from '@tauri-apps/api/window';
 import ReactMarkdown from 'react-markdown';
-import { Components } from 'react-markdown';
 
 // API configuration
 const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { HiMenu, HiChat, HiPlus, HiCog, HiTrash } from "react-icons/hi";
+import { HiMenu, HiChat, HiPlus, HiCog, HiTrash, HiHome } from "react-icons/hi";
 import { MdOutlineSaveAs } from "react-icons/md";
 import "./App.css";
 import Chatbot from "./components/Chatbot";
@@ -52,6 +52,9 @@ function App() {
     const newTags = tagString.split(',').map(tag => tag.trim()).filter(tag => tag);
     
     if (selectedNote) {
+      // Get the old tags before updating
+      const oldTags = selectedNote.tags;
+      
       // Update existing note
       const updatedNote = {
         ...selectedNote,
@@ -63,6 +66,31 @@ function App() {
           note === selectedNote ? updatedNote : note
         )
       );
+
+      // Check if any old tags are no longer used
+      setTags(prevTags => {
+        const updatedTags = [...prevTags];
+        oldTags.forEach(oldTag => {
+          // Check if this tag is still used by any note
+          const isTagStillUsed = notes.some(note => 
+            note !== selectedNote && note.tags.includes(oldTag)
+          );
+          if (!isTagStillUsed) {
+            // Remove the tag if it's not used by any other note
+            const index = updatedTags.indexOf(oldTag);
+            if (index > -1) {
+              updatedTags.splice(index, 1);
+            }
+          }
+        });
+        // Add any new tags
+        newTags.forEach(tag => {
+          if (!updatedTags.includes(tag)) {
+            updatedTags.push(tag);
+          }
+        });
+        return updatedTags;
+      });
     } else {
       // Create new note
       const newNote: Note = {
@@ -71,9 +99,11 @@ function App() {
         tags: newTags
       };
       setNotes(prevNotes => [...prevNotes, newNote]);
+      
+      // Add new tags
+      setTags(prevTags => [...new Set([...prevTags, ...newTags])]);
     }
     
-    setTags(prevTags => [...new Set([...prevTags, ...newTags])]);
     setIsNoteEditorOpen(false);
     setNoteContent('');
     setSelectedNote(null);
@@ -115,6 +145,13 @@ function App() {
     }
   };
 
+  const handleHome = () => {
+    setIsNoteEditorOpen(false);
+    setSelectedNote(null);
+    setNoteContent('');
+    setSelectedTag(null);
+  };
+
   return (
     <div 
       className="app" 
@@ -125,64 +162,64 @@ function App() {
     >
       <div className="menu-container">
         <button 
-          className="menu-button"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-label="Menu"
+          className="menu-item"
+          onClick={handleHome}
+          title="Home"
         >
-          <HiMenu size={20} />
+          <HiHome size={20} />
         </button>
-        {isMenuOpen && (
-          <div 
-            className="dropdown-menu"
-            onMouseLeave={() => setIsMenuOpen(false)}
+        {isNoteEditorOpen ? (
+          <>
+            <button 
+              className="menu-item"
+              onClick={() => {
+                setIsSaveModalOpen(true);
+              }}
+            >
+              <MdOutlineSaveAs size={20} />
+            </button>
+            <button 
+              className="menu-item"
+              onClick={handleDeleteNote}
+            >
+              <HiTrash size={20} />
+            </button>
+            <button 
+              className="menu-item"
+              onClick={() => {
+                setIsSettingsOpen(true);
+              }}
+            >
+              <HiCog size={20} />
+            </button>
+          </>
+        ) : (
+          <>
+            <button 
+              className="menu-item"
+              onClick={handleNewNote}
+            >
+              <HiPlus size={20} />
+            </button>
+            <button 
+              className="menu-item"
+              onClick={() => {
+                setIsSettingsOpen(true);
+              }}
+            >
+              <HiCog size={20} />
+            </button>
+          </>
+        )}
+        <MusicPlayer />
+        {!isChatbotOpen && (
+          <button 
+            className="menu-item"
+            onClick={() => setIsChatbotOpen(!isChatbotOpen)}
+            aria-label="Chat"
           >
-            {isNoteEditorOpen ? (
-              <>
-                <button 
-                  className="dropdown-item"
-                  onClick={() => {
-                    setIsSaveModalOpen(true);
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  <MdOutlineSaveAs size={20} />
-                </button>
-                <button 
-                  className="dropdown-item"
-                  onClick={handleDeleteNote}
-                >
-                  <HiTrash size={20} />
-                </button>
-                <button 
-                  className="dropdown-item"
-                  onClick={() => {
-                    setIsSettingsOpen(true);
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  <HiCog size={20} />
-                </button>
-              </>
-            ) : (
-              <>
-                <button 
-                  className="dropdown-item"
-                  onClick={handleNewNote}
-                >
-                  <HiPlus size={20} />
-                </button>
-                <button 
-                  className="dropdown-item"
-                  onClick={() => {
-                    setIsSettingsOpen(true);
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  <HiCog size={20} />
-                </button>
-              </>
-            )}
-          </div>
+            <HiChat size={20} />
+          </button>
         )}
       </div>
       <main className={`main-content ${isChatbotOpen ? 'chatbot-open' : ''}`}>
@@ -225,20 +262,10 @@ function App() {
         </div>
         )}
       </main>
-      {!isChatbotOpen && (
-        <button 
-          className="chatbot-toggle"
-          onClick={() => setIsChatbotOpen(!isChatbotOpen)}
-          aria-label="Chat"
-        >
-          <HiChat size={20} />
-        </button>
-      )}
       <Chatbot 
         isOpen={isChatbotOpen} 
         onClose={() => setIsChatbotOpen(false)} 
       />
-      <MusicPlayer />
       <SettingsModal
         open={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
