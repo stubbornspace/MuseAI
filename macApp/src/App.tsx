@@ -205,16 +205,16 @@ function App() {
           </>
         )}
         <MusicPlayer />
-        {!isChatbotOpen && (
-          <button 
-            className="menu-item"
-            onClick={() => setIsChatbotOpen(!isChatbotOpen)}
-            aria-label="Chat"
-          >
-            <HiChat size={20} />
-          </button>
-        )}
       </div>
+      {!isChatbotOpen && (
+        <button 
+          className="menu-item chatbot-button"
+          onClick={() => setIsChatbotOpen(!isChatbotOpen)}
+          aria-label="Chat"
+        >
+          <HiChat size={20} />
+        </button>
+      )}
       <main className={`main-content ${isChatbotOpen ? 'chatbot-open' : ''}`}>
         {isNoteEditorOpen ? (
           <NoteEditor 
@@ -273,6 +273,7 @@ function App() {
         onSave={handleSaveNote}
         initialTitle={selectedNote?.title || ''}
         initialTags={selectedTag || ''}
+        existingTags={tags}
       />
     </div>
   );

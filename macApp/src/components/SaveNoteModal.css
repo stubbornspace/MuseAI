@@ -1,26 +1,19 @@
 .save-note-dialog .MuiDialog-paper {
-  background-color: rgba(26, 26, 26, 0.2);
+  background-color: rgba(26, 26, 26, 0.95);
   backdrop-filter: blur(8px);
-  color: white;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  min-width: 400px;
-  max-width: 500px;
-  width: 100%;
+  color: #ffffff;
 }
 
 .save-note-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin: 20px 0;
+  gap: 1rem;
+  min-width: 300px;
 }
 
 .save-note-field {
-  margin-bottom: 1rem;
-}
-
-.save-note-field .MuiInputBase-root {
-  color: white;
+  margin: 0 !important;
 }
 
 .save-note-field .MuiInputLabel-root {
@@ -28,7 +21,11 @@
 }
 
 .save-note-field .MuiOutlinedInput-root {
-  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.save-note-field .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .save-note-field .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
@@ -39,18 +36,38 @@
   border-color: rgba(255, 255, 255, 0.5);
 }
 
+.save-note-field .MuiSelect-select {
+  padding: 0.75rem;
+}
+
+.save-note-field .MuiSelect-icon {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.save-note-field .MuiMenuItem-root {
+  color: #ffffff;
+}
+
+.save-note-field .MuiMenuItem-root:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
 .save-note-button {
-  background-color: rgba(70, 142, 186, 0.2) !important;
-  border: none !important;
-  color: rgba(255, 255, 255, 0.7) !important;
-  width: 32px !important;
-  height: 32px !important;
-  border-radius: 50% !important;
-  cursor: pointer !important;
+  min-width: 40px !important;
+  width: 40px !important;
+  height: 40px !important;
   padding: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  transition: background-color 0.2s !important;
-  min-width: 32px !important;
+  border-radius: 50% !important;
+  background-color: rgba(40, 40, 40, 0.2) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  margin: 0 0.5rem !important;
+}
+
+.save-note-button:hover {
+  background-color: rgba(60, 60, 60, 0.3) !important;
+}
+
+.save-note-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

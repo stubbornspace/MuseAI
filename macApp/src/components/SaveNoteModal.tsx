@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogActions, Button, TextField, Box } from '@mui/material';
+import { Dialog, DialogContent, DialogActions, Button, TextField, Box, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { IoClose, IoCheckmark } from 'react-icons/io5';
 import './SaveNoteModal.css';
 
@@ -9,24 +9,43 @@ interface SaveNoteModalProps {
   onSave: (title: string, tags: string) => void;
   initialTitle?: string;
   initialTags?: string;
+  existingTags: string[];
 }
 
-const SaveNoteModal = ({ open, onClose, onSave, initialTitle = '', initialTags = '' }: SaveNoteModalProps) => {
+const SaveNoteModal = ({ open, onClose, onSave, initialTitle = '', initialTags = '', existingTags }: SaveNoteModalProps) => {
   const [title, setTitle] = useState(initialTitle);
-  const [tags, setTags] = useState(initialTags);
+  const [selectedTag, setSelectedTag] = useState(initialTags);
+  const [isNewTag, setIsNewTag] = useState(false);
+  const [newTag, setNewTag] = useState('');
 
   useEffect(() => {
     if (open) {
       setTitle(initialTitle);
-      setTags(initialTags);
+      setSelectedTag(initialTags);
+      setIsNewTag(false);
+      setNewTag('');
     }
   }, [open, initialTitle, initialTags]);
 
   const handleSave = () => {
-    onSave(title, tags);
+    const finalTags = isNewTag ? newTag : selectedTag;
+    onSave(title, finalTags);
     setTitle('');
-    setTags('');
+    setSelectedTag('');
+    setNewTag('');
+    setIsNewTag(false);
     onClose();
+  };
+
+  const handleTagChange = (event: any) => {
+    const value = event.target.value;
+    if (value === 'new') {
+      setIsNewTag(true);
+      setSelectedTag('');
+    } else {
+      setIsNewTag(false);
+      setSelectedTag(value);
+    }
   };
 
   return (
@@ -41,14 +60,31 @@ const SaveNoteModal = ({ open, onClose, onSave, initialTitle = '', initialTags =
             className="save-note-field"
             autoFocus
           />
-          <TextField
-            fullWidth
-            label="Tags (comma separated)"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            className="save-note-field"
-            placeholder="e.g. work, ideas, personal"
-          />
+          <FormControl fullWidth className="save-note-field">
+            <InputLabel>Tag</InputLabel>
+            <Select
+              value={isNewTag ? 'new' : selectedTag}
+              onChange={handleTagChange}
+              label="Tag"
+            >
+              {existingTags.map((tag) => (
+                <MenuItem key={tag} value={tag}>
+                  {tag}
+                </MenuItem>
+              ))}
+              <MenuItem value="new">+ Create New Tag</MenuItem>
+            </Select>
+          </FormControl>
+          {isNewTag && (
+            <TextField
+              fullWidth
+              label="New Tag"
+              value={newTag}
+              onChange={(e) => setNewTag(e.target.value)}
+              className="save-note-field"
+              placeholder="Enter new tag name"
+            />
+          )}
         </Box>
       </DialogContent>
       <DialogActions>
@@ -63,7 +99,7 @@ const SaveNoteModal = ({ open, onClose, onSave, initialTitle = '', initialTags =
           className="save-note-button"
           onClick={handleSave}
           aria-label="Save"
-          disabled={!title.trim()}
+          disabled={!title.trim() || (isNewTag && !newTag.trim())}
         >
           <IoCheckmark size={20} />
         </Button>
