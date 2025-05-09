@@ -30,7 +30,7 @@ const SettingsModal = ({
   const [fontSize, setFontSize] = useState(currentFontSize);
   const [background, setBackground] = useState(currentBackground);
 
-  const handleFontSizeChange = (event: Event, newValue: number | number[]) => {
+  const handleFontSizeChange = (_event: Event, newValue: number | number[]) => {
     setFontSize(newValue as number);
   };
 

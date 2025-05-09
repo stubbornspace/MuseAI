@@ -108,7 +108,6 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
   return (
     <div className={`chatbot ${isOpen ? 'open' : ''}`}>
       <div className="chatbot-header">
-        <p>Chat Assistant</p>
         <button onClick={onClose} className="close-button">×</button>
       </div>
       <div className="chatbot-content">

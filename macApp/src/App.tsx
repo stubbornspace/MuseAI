@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { HiMenu, HiChat, HiPlus, HiCog, HiTrash, HiHome } from "react-icons/hi";
+import { HiChat, HiPlus, HiCog, HiTrash, HiHome } from "react-icons/hi";
 import { MdOutlineSaveAs } from "react-icons/md";
 import "./App.css";
 import Chatbot from "./components/Chatbot";
@@ -17,7 +17,6 @@ interface Note {
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isNoteEditorOpen, setIsNoteEditorOpen] = useState(false);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -45,7 +44,6 @@ function App() {
 
   const handleNewNote = () => {
     setIsNoteEditorOpen(true);
-    setIsMenuOpen(false);
   };
 
   const handleSaveNote = (title: string, tagString: string) => {
@@ -107,7 +105,6 @@ function App() {
     setIsNoteEditorOpen(false);
     setNoteContent('');
     setSelectedNote(null);
-    setIsMenuOpen(false);
   };
 
   const handleNoteContentChange = (content: string) => {
@@ -116,12 +113,10 @@ function App() {
 
   const handleTagClick = (tag: string) => {
     setSelectedTag(tag);
-    setIsMenuOpen(false);
   };
 
   const handleBackFromNotes = () => {
     setSelectedTag(null);
-    setIsMenuOpen(false);
   };
 
   const getNotesForTag = (tag: string) => {
@@ -132,7 +127,6 @@ function App() {
     setSelectedNote(note);
     setNoteContent(note.content);
     setIsNoteEditorOpen(true);
-    setIsMenuOpen(false);
   };
 
   const handleDeleteNote = () => {
@@ -141,7 +135,6 @@ function App() {
       setSelectedNote(null);
       setNoteContent('');
       setIsNoteEditorOpen(false);
-      setIsMenuOpen(false);
     }
   };
 
