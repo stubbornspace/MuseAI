@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HiChat, HiPlus, HiCog, HiTrash, HiHome } from "react-icons/hi";
 import { MdOutlineSaveAs } from "react-icons/md";
 import "./App.css";
@@ -8,12 +8,8 @@ import SettingsModal from "./components/SettingsModal";
 import NoteEditor from "./components/NoteEditor";
 import SaveNoteModal from "./components/SaveNoteModal";
 import NotesList from "./components/NotesList";
-
-interface Note {
-  title: string;
-  content: string;
-  tags: string[];
-}
+import { notesService } from "./services/notesService";
+import { Note } from "./types";
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -27,6 +23,31 @@ function App() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+
+  // Load notes from local storage and sync with API on startup
+  useEffect(() => {
+    const loadNotes = async () => {
+      // First load from local storage
+      const localNotes = notesService.getLocalNotes();
+      setNotes(localNotes);
+      
+      // Then sync with API
+      await notesService.syncNotes();
+      
+      // Update state with synced notes
+      const syncedNotes = notesService.getLocalNotes();
+      setNotes(syncedNotes);
+      
+      // Update tags
+      const allTags = new Set<string>();
+      syncedNotes.forEach(note => {
+        note.tags.forEach((tag: string) => allTags.add(tag));
+      });
+      setTags(Array.from(allTags));
+    };
+    
+    loadNotes();
+  }, []);
 
   const handleFontSizeChange = (newSize: number) => {
     setFontSize(newSize);
@@ -46,42 +67,38 @@ function App() {
     setIsNoteEditorOpen(true);
   };
 
-  const handleSaveNote = (title: string, tagString: string) => {
+  const handleSaveNote = async (title: string, tagString: string) => {
     const newTags = tagString.split(',').map(tag => tag.trim()).filter(tag => tag);
     
     if (selectedNote) {
-      // Get the old tags before updating
-      const oldTags = selectedNote.tags;
-      
       // Update existing note
       const updatedNote = {
         ...selectedNote,
         title,
         tags: newTags
       };
+      
+      await notesService.saveNote(updatedNote);
       setNotes(prevNotes => 
         prevNotes.map(note => 
           note === selectedNote ? updatedNote : note
         )
       );
 
-      // Check if any old tags are no longer used
+      // Update tags
       setTags(prevTags => {
         const updatedTags = [...prevTags];
-        oldTags.forEach(oldTag => {
-          // Check if this tag is still used by any note
+        selectedNote.tags.forEach(oldTag => {
           const isTagStillUsed = notes.some(note => 
             note !== selectedNote && note.tags.includes(oldTag)
           );
           if (!isTagStillUsed) {
-            // Remove the tag if it's not used by any other note
             const index = updatedTags.indexOf(oldTag);
             if (index > -1) {
               updatedTags.splice(index, 1);
             }
           }
         });
-        // Add any new tags
         newTags.forEach(tag => {
           if (!updatedTags.includes(tag)) {
             updatedTags.push(tag);
@@ -96,9 +113,9 @@ function App() {
         content: noteContent,
         tags: newTags
       };
-      setNotes(prevNotes => [...prevNotes, newNote]);
       
-      // Add new tags
+      const savedNote = await notesService.saveNote(newNote);
+      setNotes(prevNotes => [...prevNotes, savedNote]);
       setTags(prevTags => [...new Set([...prevTags, ...newTags])]);
     }
     
@@ -129,8 +146,9 @@ function App() {
     setIsNoteEditorOpen(true);
   };
 
-  const handleDeleteNote = () => {
+  const handleDeleteNote = async () => {
     if (selectedNote) {
+      await notesService.deleteNote(selectedNote.id!);
       setNotes(prevNotes => prevNotes.filter(note => note !== selectedNote));
       setSelectedNote(null);
       setNoteContent('');

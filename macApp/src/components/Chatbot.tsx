@@ -7,7 +7,8 @@ import { Window } from '@tauri-apps/api/window';
 import ReactMarkdown from 'react-markdown';
 
 // API configuration
-const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT 
+const BASE_URL = import.meta.env.VITE_API_ENDPOINT || 'https://your-api-url.execute-api.region.amazonaws.com/prod';
+const API_ENDPOINT = `${BASE_URL}/chat`;
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 interface ChatbotProps {
