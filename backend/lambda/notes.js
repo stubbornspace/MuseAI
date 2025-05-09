@@ -62,13 +62,22 @@ async function saveNote(note) {
   const noteWithTimestamp = {
     ...note,
     id: note.id || `note_${timestamp}`,
-    updatedAt: timestamp
+    updatedAt: timestamp,
+    tagIds: note.tagIds || [] // Ensure tagIds is always an array
   };
 
+  // Save the note
   await docClient.send(new PutCommand({
     TableName: process.env.NOTES_TABLE,
     Item: noteWithTimestamp
   }));
+
+  // Update tag counts in the tags table
+  if (note.tagIds) {
+    for (const tagId of note.tagIds) {
+      await updateTagCount(tagId, 1);
+    }
+  }
 
   return {
     statusCode: 200,
@@ -90,6 +99,22 @@ async function getNotes() {
 }
 
 async function deleteNote(noteId) {
+  // Get the note first to get its tags
+  const note = await docClient.send(new GetCommand({
+    TableName: process.env.NOTES_TABLE,
+    Key: { id: noteId }
+  }));
+
+  if (note.Item) {
+    // Decrement tag counts
+    if (note.Item.tagIds) {
+      for (const tagId of note.Item.tagIds) {
+        await updateTagCount(tagId, -1);
+      }
+    }
+  }
+
+  // Delete the note
   await docClient.send(new DeleteCommand({
     TableName: process.env.NOTES_TABLE,
     Key: { id: noteId }
@@ -119,4 +144,46 @@ async function syncNotes(lastSync) {
       syncTimestamp: Date.now()
     })
   };
+}
+
+async function updateTagCount(tagId, increment) {
+  try {
+    // Get current tag
+    const tag = await docClient.send(new GetCommand({
+      TableName: process.env.TAGS_TABLE,
+      Key: { id: tagId }
+    }));
+
+    if (tag.Item) {
+      // Update existing tag
+      const newCount = tag.Item.noteCount + increment;
+      if (newCount <= 0) {
+        // Delete tag if count reaches 0
+        await docClient.send(new DeleteCommand({
+          TableName: process.env.TAGS_TABLE,
+          Key: { id: tagId }
+        }));
+      } else {
+        // Update tag count
+        await docClient.send(new PutCommand({
+          TableName: process.env.TAGS_TABLE,
+          Item: {
+            ...tag.Item,
+            noteCount: newCount
+          }
+        }));
+      }
+    } else if (increment > 0) {
+      // Create new tag if it doesn't exist and we're incrementing
+      await docClient.send(new PutCommand({
+        TableName: process.env.TAGS_TABLE,
+        Item: {
+          id: tagId,
+          noteCount: 1
+        }
+      }));
+    }
+  } catch (error) {
+    console.error('Error updating tag count:', error);
+  }
 } 

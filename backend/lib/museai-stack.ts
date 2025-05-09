@@ -18,6 +18,13 @@ export class MuseaiStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.RETAIN, // Keep the table when stack is destroyed
     });
 
+    // Create DynamoDB table for tags
+    const tagsTable = new dynamodb.Table(this, 'TagsTable', {
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+
     // Add GSI for syncing
     notesTable.addGlobalSecondaryIndex({
       indexName: 'updatedAt-index',
@@ -44,6 +51,7 @@ export class MuseaiStack extends cdk.Stack {
       environment: {
         REGION: this.region,
         NOTES_TABLE: notesTable.tableName,
+        TAGS_TABLE: tagsTable.tableName,
       },
     });
 
@@ -62,6 +70,7 @@ export class MuseaiStack extends cdk.Stack {
 
     // Add DynamoDB permissions to Notes Lambda
     notesTable.grantReadWriteData(notesLambda);
+    tagsTable.grantReadWriteData(notesLambda);
 
     // Create API Gateway
     const api = new apigateway.RestApi(this, 'MuseaiApi', {

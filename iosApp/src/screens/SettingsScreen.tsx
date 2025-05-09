@@ -72,7 +72,7 @@ export const SettingsScreen = () => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+          <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
         </TouchableOpacity>
         <Text style={[globalStyles.title, styles.title]}>Settings</Text>
       </View>

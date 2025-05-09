@@ -55,7 +55,7 @@ export const MenuButton: React.FC<MenuButtonProps> = ({ actions }) => {
         style={[globalStyles.button, styles.menuButton]} 
         onPress={toggleMenu}
       >
-        <Ionicons name="menu" size={24} color="#FFFFFF" />
+        <Ionicons name="menu" size={20} color="#FFFFFF" />
       </TouchableOpacity>
 
       <Modal
@@ -85,7 +85,7 @@ export const MenuButton: React.FC<MenuButtonProps> = ({ actions }) => {
                 }}
               >
                 <View style={[globalStyles.button, styles.menuItemButton]}>
-                  <Ionicons name={action.icon} size={24} color="#FFFFFF" />
+                  <Ionicons name={action.icon} size={20} color="#FFFFFF" />
                 </View>
               </TouchableOpacity>
             ))}

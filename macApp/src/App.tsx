@@ -9,7 +9,8 @@ import NoteEditor from "./components/NoteEditor";
 import SaveNoteModal from "./components/SaveNoteModal";
 import NotesList from "./components/NotesList";
 import { notesService } from "./services/notesService";
-import { Note } from "./types";
+import { tagsService } from "./services/tagsService";
+import type { Note, Tag } from "./types";
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -19,34 +20,31 @@ function App() {
   const [fontSize, setFontSize] = useState(16);
   const [backgroundImage, setBackgroundImage] = useState('wave.png');
   const [noteContent, setNoteContent] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
-  // Load notes from local storage and sync with API on startup
+  // Load notes and tags from local storage and sync with API on startup
   useEffect(() => {
-    const loadNotes = async () => {
+    const loadData = async () => {
       // First load from local storage
       const localNotes = notesService.getLocalNotes();
+      const localTags = tagsService.getLocalTags();
       setNotes(localNotes);
+      setTags(localTags);
       
       // Then sync with API
       await notesService.syncNotes();
       
-      // Update state with synced notes
+      // Update state with synced data
       const syncedNotes = notesService.getLocalNotes();
+      const syncedTags = tagsService.getLocalTags();
       setNotes(syncedNotes);
-      
-      // Update tags
-      const allTags = new Set<string>();
-      syncedNotes.forEach(note => {
-        note.tags.forEach((tag: string) => allTags.add(tag));
-      });
-      setTags(Array.from(allTags));
+      setTags(syncedTags);
     };
     
-    loadNotes();
+    loadData();
   }, []);
 
   const handleFontSizeChange = (newSize: number) => {
@@ -56,7 +54,6 @@ function App() {
 
   const handleBackgroundChange = (image: string) => {
     setBackgroundImage(image);
-    // Update the background image in the app container
     const appContainer = document.querySelector('.app');
     if (appContainer) {
       appContainer.setAttribute('style', `font-size: ${fontSize}px; background-image: url(${image})`);
@@ -68,15 +65,39 @@ function App() {
   };
 
   const handleSaveNote = async (title: string, tagString: string) => {
-    const newTags = tagString.split(',').map(tag => tag.trim()).filter(tag => tag);
+    const tagNames = tagString.split(',')
+      .map(tag => tag.trim())
+      .filter(tag => tag && tag.length > 0);
+    
+    // Get or create tags and their IDs
+    const tagIds = tagNames.map(name => tagsService.getOrCreateTag(name).id);
     
     if (selectedNote) {
+      // Get old tag IDs for comparison
+      const oldTagIds = selectedNote.tagIds || [];
+      
       // Update existing note
       const updatedNote = {
         ...selectedNote,
         title,
-        tags: newTags
+        tagIds,
+        updatedAt: Date.now()
       };
+      
+      // Update tag counts
+      // Decrement counts for removed tags
+      oldTagIds.forEach(tagId => {
+        if (!tagIds.includes(tagId)) {
+          tagsService.decrementTagCount(tagId);
+        }
+      });
+      
+      // Increment counts for new tags
+      tagIds.forEach(tagId => {
+        if (!oldTagIds.includes(tagId)) {
+          tagsService.incrementTagCount(tagId);
+        }
+      });
       
       await notesService.saveNote(updatedNote);
       setNotes(prevNotes => 
@@ -84,40 +105,28 @@ function App() {
           note === selectedNote ? updatedNote : note
         )
       );
-
-      // Update tags
-      setTags(prevTags => {
-        const updatedTags = [...prevTags];
-        selectedNote.tags.forEach(oldTag => {
-          const isTagStillUsed = notes.some(note => 
-            note !== selectedNote && note.tags.includes(oldTag)
-          );
-          if (!isTagStillUsed) {
-            const index = updatedTags.indexOf(oldTag);
-            if (index > -1) {
-              updatedTags.splice(index, 1);
-            }
-          }
-        });
-        newTags.forEach(tag => {
-          if (!updatedTags.includes(tag)) {
-            updatedTags.push(tag);
-          }
-        });
-        return updatedTags;
-      });
     } else {
       // Create new note
       const newNote: Note = {
+        id: Date.now().toString(),
         title,
         content: noteContent,
-        tags: newTags
+        tagIds,
+        createdAt: Date.now(),
+        updatedAt: Date.now()
       };
+      
+      // Increment counts for all tags
+      tagIds.forEach(tagId => {
+        tagsService.incrementTagCount(tagId);
+      });
       
       const savedNote = await notesService.saveNote(newNote);
       setNotes(prevNotes => [...prevNotes, savedNote]);
-      setTags(prevTags => [...new Set([...prevTags, ...newTags])]);
     }
+    
+    // Update tags list
+    setTags(tagsService.getLocalTags());
     
     setIsNoteEditorOpen(false);
     setNoteContent('');
@@ -128,7 +137,7 @@ function App() {
     setNoteContent(content);
   };
 
-  const handleTagClick = (tag: string) => {
+  const handleTagClick = (tag: Tag) => {
     setSelectedTag(tag);
   };
 
@@ -136,8 +145,17 @@ function App() {
     setSelectedTag(null);
   };
 
-  const getNotesForTag = (tag: string) => {
-    return notes.filter(note => note.tags.includes(tag));
+  const getNotesForTag = (tag: Tag) => {
+    const notesUnderTag = notes.filter(note => {
+      // Handle old notes that still use 'tag' instead of 'tagIds'
+      if (!note.tagIds) {
+        note.tagIds = note.tag ? [note.tag] : [];
+        // Remove the old tag property
+        delete note.tag;
+      }
+      return note.tagIds.includes(tag.id);
+    });
+    return notesUnderTag;
   };
 
   const handleNoteClick = (note: Note) => {
@@ -148,11 +166,14 @@ function App() {
 
   const handleDeleteNote = async () => {
     if (selectedNote) {
-      await notesService.deleteNote(selectedNote.id!);
-      setNotes(prevNotes => prevNotes.filter(note => note !== selectedNote));
-      setSelectedNote(null);
-      setNoteContent('');
-      setIsNoteEditorOpen(false);
+      const success = await notesService.deleteNote(selectedNote.id);
+      if (success) {
+        setNotes(prevNotes => prevNotes.filter(note => note !== selectedNote));
+        // Update tags list
+        setTags(tagsService.getLocalTags());
+        // Navigate back to home
+        handleHome();
+      }
     }
   };
 
@@ -244,11 +265,11 @@ function App() {
             onContentChange={handleNoteContentChange}
             initialContent={selectedNote?.content || ''}
             title={selectedNote?.title || ''}
-            tag={selectedTag || ''}
+            tag={selectedTag?.name || ''}
           />
         ) : selectedTag ? (
           <NotesList 
-            tag={selectedTag}
+            tag={selectedTag.name}
             notes={getNotesForTag(selectedTag)}
             onBack={handleBackFromNotes}
             onNoteClick={handleNoteClick}
@@ -257,20 +278,20 @@ function App() {
           <div className="tags-container">
             {tags.length > 0 ? (
               <ul className="tags-list">
-                {tags.map((tag, index) => (
+                {tags.map((tag) => (
                   <li 
-                    key={index} 
+                    key={tag.id} 
                     className="tag-item"
                     onClick={() => handleTagClick(tag)}
                   >
-                    {tag}
+                    {tag.name}
                   </li>
                 ))}
               </ul>
             ) : (
               <p className="no-tags-message">No tags yet. Create a note to get started.</p>
             )}
-        </div>
+          </div>
         )}
       </main>
       <Chatbot 
@@ -290,8 +311,8 @@ function App() {
         onClose={() => setIsSaveModalOpen(false)}
         onSave={handleSaveNote}
         initialTitle={selectedNote?.title || ''}
-        initialTags={selectedTag || ''}
-        existingTags={tags}
+        initialTags={selectedTag?.name || ''}
+        existingTags={tags.map(tag => tag.name)}
       />
     </div>
   );

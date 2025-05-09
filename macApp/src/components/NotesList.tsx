@@ -1,11 +1,6 @@
 import { IoArrowBack } from 'react-icons/io5';
+import type { Note } from '../types';
 import './NotesList.css';
-
-interface Note {
-  title: string;
-  content: string;
-  tags: string[];
-}
 
 interface NotesListProps {
   tag: string;

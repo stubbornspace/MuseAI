@@ -74,7 +74,7 @@ export const NotesScreen = () => {
         onPress={() => navigation.goBack()}
       >
         <View style={globalStyles.backButtonCircle}>
-          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+          <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
         </View>
       </TouchableOpacity>
       

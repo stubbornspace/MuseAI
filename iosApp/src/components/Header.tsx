@@ -37,7 +37,7 @@ export const Header: React.FC<HeaderProps> = ({
             onPress={onBackPress}
           >
             <View style={styles.backButtonCircle}>
-              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+              <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
             </View>
           </TouchableOpacity>
         )}

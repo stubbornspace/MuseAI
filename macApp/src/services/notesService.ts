@@ -1,4 +1,5 @@
 import { Note } from '../types';
+import { tagsService } from './tagsService';
 
 const BASE_URL = import.meta.env.VITE_API_ENDPOINT || 'https://your-api-url.execute-api.region.amazonaws.com/prod';
 const API_KEY = import.meta.env.VITE_API_KEY || '';
@@ -25,16 +26,32 @@ export const notesService = {
     const existingNoteIndex = notes.findIndex(n => n.id === note.id);
     
     if (existingNoteIndex >= 0) {
+      // Decrement counts for old tags
+      notes[existingNoteIndex].tagIds.forEach(tagId => {
+        tagsService.decrementTagCount(tagId);
+      });
       notes[existingNoteIndex] = note;
     } else {
       notes.push(note);
     }
+    
+    // Increment counts for new tags
+    note.tagIds.forEach(tagId => {
+      tagsService.incrementTagCount(tagId);
+    });
     
     localStorage.setItem(LOCAL_STORAGE_KEYS.NOTES, JSON.stringify(notes));
   },
 
   deleteLocalNote: (noteId: string): void => {
     const notes = notesService.getLocalNotes();
+    const noteToDelete = notes.find(n => n.id === noteId);
+    if (noteToDelete) {
+      // Decrement counts for all tags in the deleted note
+      noteToDelete.tagIds.forEach(tagId => {
+        tagsService.decrementTagCount(tagId);
+      });
+    }
     const updatedNotes = notes.filter(note => note.id !== noteId);
     localStorage.setItem(LOCAL_STORAGE_KEYS.NOTES, JSON.stringify(updatedNotes));
   },
@@ -66,7 +83,12 @@ export const notesService = {
     }
   },
 
-  async deleteNote(noteId: string): Promise<void> {
+  async deleteNote(noteId: string): Promise<boolean> {
+    const confirmed = window.confirm('Are you sure you want to delete this note? This action cannot be undone.');
+    if (!confirmed) {
+      return false;
+    }
+
     try {
       const response = await fetch(`${BASE_URL}/notes`, {
         method: 'DELETE',
@@ -79,10 +101,12 @@ export const notesService = {
       }
 
       notesService.deleteLocalNote(noteId);
+      return true;
     } catch (error) {
       console.error('Error deleting note:', error);
       // Delete locally even if API call fails
       notesService.deleteLocalNote(noteId);
+      return true;
     }
   },
 
