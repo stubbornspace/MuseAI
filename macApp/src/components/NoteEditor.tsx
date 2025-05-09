@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { IoArrowBack } from 'react-icons/io5';
+import type { Tag } from '../types';
 import './NoteEditor.css';
 
 interface NoteEditorProps {
@@ -8,15 +9,29 @@ interface NoteEditorProps {
   initialContent?: string;
   title?: string;
   tag?: string;
+  availableTags?: Tag[];
 }
 
-const NoteEditor = ({ onClose, onContentChange, initialContent = '', title = '', tag = '' }: NoteEditorProps) => {
+const NoteEditor = ({ 
+  onClose, 
+  onContentChange, 
+  initialContent = '', 
+  title = '', 
+  tag = '',
+  availableTags = []
+}: NoteEditorProps) => {
   const [content, setContent] = useState(initialContent);
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.target.value;
     setContent(newContent);
     onContentChange(newContent);
+  };
+
+  // Find the tag name from the tag ID
+  const getTagName = (tagId: string) => {
+    const tag = availableTags.find(t => t.id === tagId);
+    return tag ? tag.name : '';
   };
 
   return (

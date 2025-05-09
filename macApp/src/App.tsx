@@ -265,7 +265,8 @@ function App() {
             onContentChange={handleNoteContentChange}
             initialContent={selectedNote?.content || ''}
             title={selectedNote?.title || ''}
-            tag={selectedTag?.name || ''}
+            tag={selectedNote?.tagIds?.[0] ? tags.find(t => t.id === selectedNote.tagIds[0])?.name || '' : ''}
+            availableTags={tags}
           />
         ) : selectedTag ? (
           <NotesList 
