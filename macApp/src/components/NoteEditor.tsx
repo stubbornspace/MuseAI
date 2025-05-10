@@ -4,6 +4,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import type { Tag } from '../types';
+import ProofreadPreviewModal from './ProofreadPreviewModal';
 import './NoteEditor.css';
 
 interface NoteEditorProps {
@@ -51,6 +52,18 @@ const NoteEditor = ({
     text: '',
   });
 
+  const [previewModal, setPreviewModal] = useState<{
+    open: boolean;
+    originalText: string;
+    improvedText: string;
+    mode: 'proofread' | 'shorten';
+  }>({
+    open: false,
+    originalText: '',
+    improvedText: '',
+    mode: 'proofread',
+  });
+
   const editorRef = useRef<HTMLDivElement>(null);
 
   // Update editor content when initialContent changes
@@ -92,22 +105,37 @@ const NoteEditor = ({
     };
   }, []);
 
-  const handleProofread = async () => {
+  const handleTextProcessing = async (mode: 'proofread' | 'shorten') => {
     if (!onSendToChatbot || !editor) return;
 
     try {
-      const response = await onSendToChatbot(contextMenu.text);
+      const prompt = mode === 'proofread' 
+        ? `Please proofread and improve the following text. Return only the improved text without any explanations: ${contextMenu.text}`
+        : `Please condense the following text while keeping all main points. Return only the condensed text without any explanations: ${contextMenu.text}`;
+
+      const response = await onSendToChatbot(prompt);
       if (response) {
-        // Replace the selected text with the response
-        const { from, to } = editor.state.selection;
-        editor.commands.deleteRange({ from, to });
-        editor.commands.insertContent(response);
+        setPreviewModal({
+          open: true,
+          originalText: contextMenu.text,
+          improvedText: response,
+          mode,
+        });
       }
     } catch (error) {
-      console.error('Error proofreading text:', error);
+      console.error(`Error ${mode}ing text:`, error);
     }
 
     setContextMenu(prev => ({ ...prev, visible: false }));
+  };
+
+  const handleApplyChanges = () => {
+    if (!editor) return;
+
+    const { from, to } = editor.state.selection;
+    editor.commands.deleteRange({ from, to });
+    editor.commands.insertContent(previewModal.improvedText);
+    setPreviewModal(prev => ({ ...prev, open: false }));
   };
 
   // Find the tag name from the tag ID
@@ -145,11 +173,22 @@ const NoteEditor = ({
             left: contextMenu.x,
           }}
         >
-          <button onClick={handleProofread}>
-            Proofread with AI
+          <button onClick={() => handleTextProcessing('proofread')}>
+            Proofread
+          </button>
+          <button onClick={() => handleTextProcessing('shorten')}>
+            Shorten
           </button>
         </div>
       )}
+      <ProofreadPreviewModal
+        open={previewModal.open}
+        onClose={() => setPreviewModal(prev => ({ ...prev, open: false }))}
+        onApply={handleApplyChanges}
+        originalText={previewModal.originalText}
+        improvedText={previewModal.improvedText}
+        mode={previewModal.mode}
+      />
     </div>
   );
 };

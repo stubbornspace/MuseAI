@@ -1,0 +1,64 @@
+.proofread-preview-dialog {
+  .MuiDialog-paper {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.proofread-preview-container {
+  display: flex;
+  gap: 24px;
+  padding: 16px;
+}
+
+.text-column {
+  flex: 1;
+  min-width: 0;
+
+  h3 {
+    margin: 0 0 12px 0;
+    font-size: 1.1rem;
+    color: var(--text-color);
+    opacity: 0.9;
+  }
+}
+
+.text-content {
+  background-color: var(--input-background);
+  border-radius: 8px;
+  padding: 16px;
+  min-height: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+.preview-button {
+  min-width: 40px !important;
+  height: 40px;
+  border-radius: 20px !important;
+  padding: 0 !important;
+  margin: 8px !important;
+  background-color: var(--button-background) !important;
+  color: var(--text-color) !important;
+  transition: all 0.2s ease !important;
+
+  &:hover {
+    background-color: var(--button-hover) !important;
+    transform: scale(1.05);
+  }
+
+  &:last-child {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+
+    &:hover {
+      background-color: var(--primary-hover) !important;
+    }
+  }
+} 
