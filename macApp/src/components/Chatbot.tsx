@@ -33,6 +33,7 @@ const Chatbot = ({ isOpen, onClose }: ChatbotProps) => {
 
   const handleCopy = async (text: string, index: number) => {
     try {
+      // The text is already in Markdown format, so we can copy it directly
       await navigator.clipboard.writeText(text);
       setCopiedIndex(index);
       setTimeout(() => setCopiedIndex(null), 2000);

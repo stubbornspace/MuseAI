@@ -12,6 +12,11 @@ import { notesService } from "./services/notesService";
 import { tagsService } from "./services/tagsService";
 import type { Note, Tag } from "./types";
 
+// API configuration
+const BASE_URL = import.meta.env.VITE_API_ENDPOINT || 'https://your-api-url.execute-api.region.amazonaws.com/prod';
+const API_ENDPOINT = `${BASE_URL}/chat`;
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -184,6 +189,38 @@ function App() {
     setSelectedTag(null);
   };
 
+  const handleProofread = async (text: string): Promise<string> => {
+    try {
+      if (!API_KEY) {
+        throw new Error('API key is not configured');
+      }
+
+      const response = await fetch(API_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY,
+        },
+        body: JSON.stringify({ 
+          message: `Please proofread and improve the following text. Return only the improved text without any explanations: ${text}` 
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      } else if (data.message) {
+        return data.message;
+      } else {
+        throw new Error('Unexpected response format');
+      }
+    } catch (error) {
+      console.error('Error proofreading text:', error);
+      throw error;
+    }
+  };
+
   return (
     <div 
       className="app" 
@@ -267,6 +304,7 @@ function App() {
             title={selectedNote?.title || ''}
             tag={selectedNote?.tagIds?.[0] ? tags.find(t => t.id === selectedNote.tagIds[0])?.name || '' : ''}
             availableTags={tags}
+            onSendToChatbot={handleProofread}
           />
         ) : selectedTag ? (
           <NotesList 
